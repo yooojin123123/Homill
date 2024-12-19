@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>글쓰기</title>
+    <style>
+        /* 기존 스타일 유지 */
+        body {
+            margin: 0;
+            background-color: #FEF7ED;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            width: 40px; 
+            height: 40px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .complete-btn {
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 2px solid #333;
+            background-color: #FFAAAA; /* 완료 버튼 배경색 */
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .content {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .write-box {
+            border: 2px solid #333;
+            background-color: #FEF7ED;
+            display: flex;
+            flex-direction: column;
+            max-width: 660px; 
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .title-input {
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-bottom: 2px solid #333;
+            background: none;
+            color: #333;
+            outline: none;
+        }
+
+        .title-input::placeholder {
+            color: #666;
+        }
+
+        /* 카테고리 선택 줄 */
+        .category-select-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 2px solid #333;
+        }
+
+        .category-select-line .triangle {
+            margin-left: 5px;
+        }
+
+        /* 선택된 카테고리 pill */
+        .category-pill-wrapper {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 2px solid #333; /* 카테고리 선택 시 하단 구분선 */
+        }
+
+        .category-pill {
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #333;
+            border: 2px solid #333;
+            border-radius: 20px;
+            background-color: #F7CFCF; 
+            width: fit-content;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 200px;
+            box-sizing: border-box;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            resize: none;
+            outline: none;
+            border-bottom: 2px solid #333;
+            background: none; /* 배경 제거 */
+        }
+
+        .text-area::placeholder {
+            color: #666;
+        }
+
+        .media-btn {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            font-size: 12px;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .media-btn .icon {
+            font-size: 20px;
+        }
+
+        /* 모달 공통 스타일 */
+        .modal-overlay {
+            position: fixed;
+            left: 0; top: 0; 
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .modal {
+            background: #FEF7ED;
+            border: 2px solid #333;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-text {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .modal-buttons {
+            display: flex;
+            border-top: 1px solid #999;
+            margin-top: 10px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal-button:first-child {
+            border-right: 1px solid #999;
+            color: blue;
+        }
+
+        .modal-button:last-child {
+            color: red;
+        }
+
+        /* 카테고리 미선택 시 나타나는 팝업 */
+        .alert-box {
+            background: #ccc;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .alert-text {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .alert-confirm {
+            display: inline-block;
+            border-top: 1px solid #999;
+            color: blue;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 헤더 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="back-btn">←</div>
+            <div class="title">글쓰기</div>
+        </div>
+        <div class="complete-btn" id="complete-btn">완료</div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="content">
+        <div class="write-box">
+            <input type="text" class="title-input" placeholder="제목" id="post-title"/>
+            
+            <!-- 카테고리 영역: 선택 안했을때 라인, 선택했을때 pill 표시 -->
+            <div class="category-area"></div>
+
+            <textarea class="text-area" placeholder="내용을 입력하세요." id="post-content"></textarea>
+            <div class="media-btn">
+                <div class="icon">📷</div>
+                <div>사진/동영상</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 뒤로가기 확인 모달 -->
+    <div class="modal-overlay" id="back-modal">
+        <div class="modal">
+            <div class="modal-text">
+                작성 중이던 글이 취소될 수 있습니다.<br>
+                괜찮으시겠습니까?
+            </div>
+            <div class="modal-buttons">
+                <div class="modal-button" id="back-yes">네</div>
+                <div class="modal-button" id="back-no">아니요</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 내용 입력 요구 모달 -->
+    <div class="modal-overlay" id="alert-modal">
+        <div class="modal">
+            <div class="modal-text" id="alert-text">내용을 입력해주세요.</div>
+            <div class="modal-buttons" style="border-top:none;">
+                <div class="modal-button" id="alert-ok" style="border:none; color:blue;">확인</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카테고리 미선택 시 나타나는 팝업 -->
+    <div class="modal-overlay" id="category-alert-modal">
+        <div class="alert-box">
+            <div class="alert-text">카테고리를 선택하세요.</div>
+            <div class="alert-confirm" id="category-alert-ok">확인</div>
+        </div>
+    </div>
+
+    <script>
+        const backBtn = document.querySelector('.back-btn');
+        const backModal = document.getElementById('back-modal');
+        const backYes = document.getElementById('back-yes');
+        const backNo = document.getElementById('back-no');
+
+        const alertModal = document.getElementById('alert-modal');
+        const alertText = document.getElementById('alert-text');
+        const alertOk = document.getElementById('alert-ok');
+
+        const categoryAlertModal = document.getElementById('category-alert-modal');
+        const categoryAlertOk = document.getElementById('category-alert-ok');
+
+        const completeBtn = document.getElementById('complete-btn');
+        const categoryArea = document.querySelector('.category-area');
+
+        const titleInput = document.getElementById('post-title');
+        const contentInput = document.getElementById('post-content');
+
+        backBtn.addEventListener('click', () => {
+            backModal.style.display = 'flex';
+        });
+
+        backYes.addEventListener('click', () => {
+            location.href = 'index.html';
+        });
+
+        backNo.addEventListener('click', () => {
+            backModal.style.display = 'none';
+        });
+
+        alertOk.addEventListener('click', () => {
+            alertModal.style.display = 'none';
+        });
+
+        categoryAlertOk.addEventListener('click', () => {
+            categoryAlertModal.style.display = 'none';
+        });
+
+        // URL 파라미터로 카테고리 값 가져오기
+        const params = new URLSearchParams(window.location.search);
+        const category = params.get('category');
+
+        if(category) {
+            // 카테고리 선택 시 pill + 하단 구분선
+            const wrapper = document.createElement('div');
+            wrapper.className = 'category-pill-wrapper';
+            const pill = document.createElement('div');
+            pill.className = 'category-pill';
+            pill.textContent = category;
+            wrapper.appendChild(pill);
+            categoryArea.appendChild(wrapper);
+        } else {
+            // 카테고리 선택 안함
+            const line = document.createElement('div');
+            line.className = 'category-select-line';
+            line.innerHTML = `카테고리 선택 <div class="triangle">▼</div>`;
+            line.onclick = () => location.href='category_select.html';
+            categoryArea.appendChild(line);
+        }
+
+        completeBtn.addEventListener('click', () => {
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            if(!category) {
+                // 카테고리 미선택 팝업
+                categoryAlertModal.style.display = 'flex';
+                return;
+            }
+            if(title === '' || content === '') {
+                // 제목 또는 내용 미입력 팝업
+                alertText.textContent = '제목과 내용을 모두 입력해주세요.';
+                alertModal.style.display = 'flex';
+                return;
+            }
+
+            // 모든 조건 충족 시 localStorage에 저장
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            posts.push({title, content, category, timestamp: Date.now()});
+            localStorage.setItem('posts', JSON.stringify(posts));
+            location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
