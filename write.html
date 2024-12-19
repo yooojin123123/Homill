@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>글쓰기</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #FEF7ED;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            width: 40px; 
+            height: 40px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .complete-btn {
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 2px solid #333;
+            background-color: #FFAAAA;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .content {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .write-box {
+            border: 2px solid #333;
+            background-color: #FEF7ED;
+            display: flex;
+            flex-direction: column;
+            max-width: 660px; 
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .title-input {
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-bottom: 2px solid #333;
+            background: none;
+            color: #333;
+            outline: none;
+        }
+
+        .title-input::placeholder {
+            color: #666;
+        }
+
+        .category-select-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 2px solid #333;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 200px;
+            box-sizing: border-box;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            resize: none;
+            outline: none;
+            border-bottom: 2px solid #333;
+            background: none;
+        }
+
+        .text-area::placeholder {
+            color: #666;
+        }
+
+        /* 모달 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .modal-button.confirm {
+            background: #FFAAAA;
+            color: #fff;
+        }
+
+        .modal-button.cancel {
+            background: #fff;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="back-btn" id="back-btn">←</div>
+            <div class="title">글쓰기</div>
+        </div>
+        <div class="complete-btn" id="complete-btn">완료</div>
+    </header>
+
+    <div class="content">
+        <div class="write-box">
+            <input type="text" class="title-input" placeholder="제목" id="post-title"/>
+            <div class="category-select-line" id="category-select">
+                <span id="selected-category">카테고리 선택</span>
+                <span>▼</span>
+            </div>
+            <textarea class="text-area" placeholder="내용을 입력하세요." id="post-content"></textarea>
+        </div>
+    </div>
+
+    <!-- 뒤로가기 모달 -->
+    <div class="modal-overlay" id="back-modal">
+        <div class="modal">
+            <p>작성 중이던 글이 취소됩니다. 계속 진행하시겠습니까?</p>
+            <div class="modal-buttons">
+                <div class="modal-button confirm" id="confirm-back">확인</div>
+                <div class="modal-button cancel" id="cancel-back">취소</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const backBtn = document.getElementById('back-btn');
+        const backModal = document.getElementById('back-modal');
+        const confirmBack = document.getElementById('confirm-back');
+        const cancelBack = document.getElementById('cancel-back');
+
+        const completeBtn = document.getElementById('complete-btn');
+        const categorySelect = document.getElementById('category-select');
+        const selectedCategory = document.getElementById('selected-category');
+
+        // 뒤로가기 버튼 클릭
+        backBtn.addEventListener('click', () => {
+            backModal.style.display = 'flex';
+        });
+
+        // 뒤로가기 확인
+        confirmBack.addEventListener('click', () => {
+            location.href = 'index.html';
+        });
+
+        // 뒤로가기 취소
+        cancelBack.addEventListener('click', () => {
+            backModal.style.display = 'none';
+        });
+
+        // 카테고리 선택 클릭
+        categorySelect.addEventListener('click', () => {
+            location.href = 'category_select.html';
+        });
+
+        // URL 파라미터로 카테고리 값 가져오기
+        const params = new URLSearchParams(window.location.search);
+        const category = params.get('category');
+        if (category) {
+            selectedCategory.textContent = category;
+        }
+
+        // 글 작성 완료
+        completeBtn.addEventListener('click', () => {
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+
+            if (!category || category === '카테고리 선택') {
+                alert('카테고리를 선택해주세요.');
+                return;
+            }
+
+            if (!title || !content) {
+                alert('제목과 내용을 모두 입력해주세요.');
+                return;
+            }
+
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            posts.push({ title, content, category, timestamp: Date.now() });
+            localStorage.setItem('posts', JSON.stringify(posts));
+
+            alert('게시글이 저장되었습니다.');
+            location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
